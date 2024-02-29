@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    encoding: UTF-8
+    cache: false
+    servlet:
+      content-type: text/html
+  datasource:
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://192.168.6.175:3306/generator?serverTimezone=Asia/Shanghai
+          username: u_develop
+          password: u_develop

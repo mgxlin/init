@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>项目生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        label {
+            margin-top: 10px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 四列布局 */
+            gap: 10px; /* 列与列之间的间隙 */
+            max-height: 200px; /* 四行的大致高度 */
+            overflow-y: auto; /* 内容超出时允许垂直滚动 */
+            margin-top: 20px; /* 底部留出空间 */
+            margin-bottom: 20px; /* 底部留出空间 */
+            border: 1px solid #ddd; /* 边框 */
+            padding: 10px; /* 内部间距 */
+            border-radius: 5px; /* 边框圆角 */
+        }
+        .checkbox-wrapper {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .checkbox-wrapper input[type=checkbox] {
+            margin: 0;
+            cursor: pointer;
+        }
+        .checkbox-wrapper label {
+            margin: 0;
+            font-size: 18px; /* 增大字体大小 */
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none; /* 防止选中标签文本 */
+        }
+        .checkbox-wrapper:hover {
+            background-color: #f0f0f0; /* 鼠标悬停时的背景颜色 */
+        }
+        button {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>项目生成器</h1>
+    <p>1.先将表结构 导入到<span style="color: red; font-weight: bold;"> dev </span> 环境 <span style="color: red; font-weight: bold;"> generator </span> 数据库中。注：最新导入的表会排在最前面</p>
+    <p>2.指定模块名称，可选多个表名</p>
+    <p>3.解压后，需要自行配置证书，才可以启动</p>
+    <form id="generatorForm">
+        <div>
+            <label for="moduleName"><span style="color: red; font-weight: bold;"> 指定模块名称: </span></label>
+            <input type="text" id="moduleName" name="moduleName" required>
+        </div>
+        <div class="checkbox-group" id="tablesCheckboxGroup">
+            <!-- 复选框将在这里动态添加 -->
+        </div>
+        <button type="submit">生成项目</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/tables')
+            .then(response => response.json())
+            .then(data => {
+                const checkboxGroup = document.getElementById('tablesCheckboxGroup');
+                data.forEach(table => {
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('checkbox-wrapper');
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = table;
+                    checkbox.name = 'tables';
+                    checkbox.value = table;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = table;
+                    label.textContent = table;
+
+                    wrapper.appendChild(checkbox);
+                    wrapper.appendChild(label);
+                    checkboxGroup.appendChild(wrapper);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('generatorForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const selectedTables = Array.from(document.querySelectorAll('#tablesCheckboxGroup input[type=checkbox]:checked')).map(cb => cb.value);
+        if (selectedTables.length === 0) {
+            alert('请至少选择一个表格！');
+            return;
+        }
+
+        const moduleName = document.getElementById('moduleName').value;
+        const data = {
+            moduleName: moduleName,
+            tables: selectedTables
+        };
+
+        fetch('/generator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'wancheli-module-'+moduleName + '.zip';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+</html>
