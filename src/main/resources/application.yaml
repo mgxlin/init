@@ -15,6 +15,6 @@ spring:
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://192.168.6.175:3306/generator?serverTimezone=Asia/Shanghai
-          username: u_develop
-          password: u_develop
+          url: jdbc:mysql://127.0.0.1:3306/mall?serverTimezone=Asia/Shanghai
+          username: root
+          password: root

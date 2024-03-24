@@ -1,15 +1,15 @@
 package com.wancheli.init.generate.controller;
 
-import cn.hutool.core.collection.CollUtil;
+import com.mgxlin.module.generator.Generator;
 import com.wancheli.init.generate.ro.GeneratorRO;
 import com.wancheli.init.generate.service.GenerateService;
 import com.wancheli.init.util.ZipUtil;
-import com.wancheli.module.generator.Generator;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,7 +47,7 @@ public class GenerateController {
 
         List<String> tables = ro.getTables();
         String moduleName = ro.getModuleName();
-        if (CollUtil.isEmpty(tables) || StringUtils.isEmpty(moduleName)) {
+        if (CollectionUtils.isEmpty(tables) || !StringUtils.hasLength(moduleName)) {
             return null;
         }
 
